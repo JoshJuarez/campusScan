@@ -47,7 +47,7 @@ print("hello world")
     log failed builds, successful builds, learning & iteration you may just get post session technical mentor feedback
     ask the ai how they want to prompt 
     use it as as a rubber duck
-    
+'''
 
     
     
