@@ -29,4 +29,25 @@ print("hello world")
     you get something out small and then you can build something else on top of it. 
     can you consolidate the information - here is the inventory and here is equivalent pieces of clothing and then give people a range and (no more than)
     can i find blank in a certain place and then how much should i be paying it for.
+
+    thin slice markdown         file 1
+    • Who is the user?
+    • What’s the problem?
+    • One end‑to‑end user journey
+    • What’s explicitly out of scope
+    
+    prompt lader markdown       file 2
+    scaffold
+    core flow
+    data + validation
+    UX polish
+    Docs + cleanup
+
+    build-log.md               file 3
+    log failed builds, successful builds, learning & iteration you may just get post session technical mentor feedback
+    ask the ai how they want to prompt 
+    use it as as a rubber duck
+    
+
+    
     
