@@ -5,10 +5,19 @@ Who is the user?
       attending career fairs
       first profesional jobs
       networking events
+      all of them have certain characteristic
+        (low budget)
+        they dont have a lot of time
+        what to look professional
+        might be nevous about going into consignment shops
+        might not know where to get clothes
 What’s the problem?
   Current prices are absurd for formal wear
   there is no specific sizes and measurements for second hand stores
-  there is not enough time for the user to investigate throughout
+  there is not enough time for the user to investigate if the prices are reasonable or if they are charging too much
+  there is no certralization of information based on location size and availability
+  
+  
 One end‑to‑end user journey
   user searches up affordable formal wear
   enters in what they are looking for in terms of size budget an location
