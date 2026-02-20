@@ -19,4 +19,4 @@ One end‑to‑end user journey
   map pin showing location
   selects the location if they do not want to
 What’s explicitly out of scope
-  data updating so things that might be 
+  data updating so things that might be sold out will be obsolete and will not pop up immediately because of the nature of the project
