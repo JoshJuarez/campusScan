@@ -47,6 +47,22 @@ print("hello world")
     log failed builds, successful builds, learning & iteration you may just get post session technical mentor feedback
     ask the ai how they want to prompt 
     use it as as a rubber duck
+    
+    test driven development
+    As a BLANK I want to BLANK so that BLANK
+    Done When:
+    Behavioral TDD: GIVEN X WHEN Y THEN Z
+
+    rubber duck
+    what did you expect to happen
+    what actually happened
+    what is the smallest thing you can change to try and change next
+
+    change one thing at a time
+    log failures
+    commit partial progress 
+    
+    
 '''
 
     
