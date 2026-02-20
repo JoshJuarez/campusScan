@@ -13,5 +13,10 @@ One end‑to‑end user journey
   user searches up affordable formal wear
   enters in what they are looking for in terms of size budget an location
   returns locations that have that in stock
-  
+  has a photo
+  condition
+  listed price
+  map pin showing location
+  selects the location if they do not want to
 What’s explicitly out of scope
+  data updating so things that might be 
