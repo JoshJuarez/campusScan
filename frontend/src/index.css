@@ -1,0 +1,258 @@
+:root {
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #1c140d;
+  background:
+    radial-gradient(circle at top, rgba(249, 197, 116, 0.45), transparent 30%),
+    linear-gradient(180deg, #fff8ee 0%, #f5efe3 50%, #efe6d6 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --ink: #1c140d;
+  --muted: #715b4b;
+  --panel: rgba(255, 250, 242, 0.88);
+  --panel-border: rgba(103, 72, 41, 0.15);
+  --accent: #7f1d1d;
+  --accent-strong: #5f1414;
+  --gold: #d8a43a;
+  --success: #1f6f43;
+  --error: #9f2d2d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+main,
+div {
+  color: var(--ink);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.9rem 1.4rem;
+  background: var(--accent);
+  color: #fff9f2;
+  cursor: pointer;
+  transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  box-shadow: 0 14px 28px rgba(127, 29, 29, 0.18);
+}
+
+button:hover {
+  background: var(--accent-strong);
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid var(--panel-border);
+  border-radius: 18px;
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--ink);
+}
+
+.landing-page {
+  padding: 3rem 1.25rem 4rem;
+}
+
+.hero,
+.partnership-section,
+.info-grid {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1.2fr 0.95fr;
+  gap: 2rem;
+  align-items: center;
+  min-height: 80vh;
+}
+
+.hero-copy h1 {
+  font-size: clamp(3rem, 6vw, 5.6rem);
+  line-height: 0.94;
+  letter-spacing: -0.05em;
+  max-width: 10ch;
+}
+
+.hero-text,
+.section-copy p,
+.info-card p,
+.panel-text {
+  color: var(--muted);
+  font-size: 1.04rem;
+}
+
+.eyebrow,
+.panel-label {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.hero-highlights {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.hero-highlights span {
+  background: rgba(216, 164, 58, 0.16);
+  border: 1px solid rgba(216, 164, 58, 0.3);
+  padding: 0.65rem 0.9rem;
+  border-radius: 999px;
+}
+
+.panel,
+.info-card,
+.admin-card,
+.admin-shell,
+.admin-stats {
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 20px 45px rgba(74, 53, 34, 0.08);
+}
+
+.panel,
+.info-card,
+.admin-card,
+.admin-shell {
+  border-radius: 28px;
+}
+
+.panel {
+  padding: 1.6rem;
+}
+
+.panel label {
+  display: block;
+  margin: 0.8rem 0 0.4rem;
+  font-weight: 600;
+}
+
+.success-message {
+  color: var(--success);
+  margin-top: 1rem;
+}
+
+.error-message {
+  color: var(--error);
+  margin-top: 1rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.info-card {
+  padding: 1.5rem;
+}
+
+.partnership-section {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 2rem;
+  margin-top: 4rem;
+  align-items: start;
+}
+
+.partnership-form textarea {
+  resize: vertical;
+  min-height: 130px;
+}
+
+.admin-shell {
+  width: min(960px, calc(100% - 2rem));
+  margin: 2rem auto;
+  padding: 1.5rem;
+}
+
+.admin-stats,
+.admin-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.admin-stats {
+  border-radius: 20px;
+  padding: 1rem 1.2rem;
+}
+
+.admin-card {
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.danger-button {
+  background: #8f2020;
+}
+
+@media (max-width: 860px) {
+  .hero,
+  .partnership-section,
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: auto;
+    padding-top: 1rem;
+  }
+
+  .hero-copy h1 {
+    max-width: none;
+  }
+
+  .landing-page {
+    padding-top: 2rem;
+  }
+}
