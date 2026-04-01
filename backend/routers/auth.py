@@ -2,17 +2,19 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from database import get_db
-from models import User
+from models import Ambassador
 import os
 import requests
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+
 @router.get("/google")
 def google_login():
+    # Kick off the Google OAuth flow for a new ambassador
     client_id = os.getenv("GOOGLE_CLIENT_ID")
     redirect_uri = "http://localhost:8000/auth/callback"
-    scope = "email profile https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar"
+    scope = "email profile https://www.googleapis.com/auth/gmail.readonly"
     url = (
         f"https://accounts.google.com/o/oauth2/v2/auth"
         f"?client_id={client_id}"
@@ -22,11 +24,12 @@ def google_login():
         f"&access_type=offline"
         f"&prompt=consent"
     )
-    return {"auth_url": url}
+    return RedirectResponse(url=url)
+
 
 @router.get("/callback")
 def google_callback(code: str, db: Session = Depends(get_db)):
-    # Exchange the code Google gave us for real tokens
+    # Exchange the code for tokens
     token_response = requests.post("https://oauth2.googleapis.com/token", data={
         "code": code,
         "client_id": os.getenv("GOOGLE_CLIENT_ID"),
@@ -39,7 +42,7 @@ def google_callback(code: str, db: Session = Depends(get_db)):
     access_token  = tokens.get("access_token")
     refresh_token = tokens.get("refresh_token")
 
-    # Get the user's Google profile info
+    # Get the ambassador's Google profile
     profile = requests.get(
         "https://www.googleapis.com/oauth2/v1/userinfo",
         headers={"Authorization": f"Bearer {access_token}"}
@@ -49,45 +52,31 @@ def google_callback(code: str, db: Session = Depends(get_db)):
     email     = profile.get("email")
     name      = profile.get("name")
 
-    # Check if user already exists, if not create them
-    user = db.query(User).filter_by(google_id=google_id).first()
-    if not user:
-        user = User(
+    # Create or update the ambassador record
+    ambassador = db.query(Ambassador).filter_by(google_id=google_id).first()
+    if not ambassador:
+        ambassador = Ambassador(
             email=email,
             name=name,
             google_id=google_id,
             access_token=access_token,
             refresh_token=refresh_token,
         )
-        db.add(user)
+        db.add(ambassador)
     else:
-        # Update their tokens in case they expired
-        user.access_token  = access_token
-        user.refresh_token = refresh_token
+        ambassador.access_token  = access_token
+        ambassador.refresh_token = refresh_token
 
     db.commit()
-    db.refresh(user)
 
-    # Redirect to the frontend with the user's ID
-    return RedirectResponse(url=f"http://localhost:5173/events?user_id={user.id}")
+    # Redirect back to the admin dashboard
+    return RedirectResponse(url="http://localhost:5173/admin?connected=true")
 
-@router.get("/me/{user_id}")
-def get_me(user_id: int, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return {"error": "User not found"}
-    return {"id": user.id, "email": user.email, "name": user.name}
 
-@router.post("/phone/{user_id}")
-def save_phone(user_id: int, data: dict, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return {"error": "User not found"}
-    user.phone_number = data.get("phone_number")
-    db.commit()
-
-    # Send welcome text
-    from services.twilio_service import send_welcome_text
-    send_welcome_text(user.phone_number, user.name)
-
-    return {"success": True}
+@router.get("/ambassadors")
+def list_ambassadors(db: Session = Depends(get_db)):
+    ambassadors = db.query(Ambassador).filter_by(is_active=True).all()
+    return [
+        {"id": a.id, "name": a.name, "email": a.email, "joined_at": a.joined_at}
+        for a in ambassadors
+    ]

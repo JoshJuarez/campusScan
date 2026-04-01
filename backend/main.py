@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routers import scan, events, admin, webhook, public
+from routers import admin, webhook, public, auth
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from database import SessionLocal
@@ -22,8 +22,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(scan.router)
-app.include_router(events.router)
+app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(webhook.router)
 app.include_router(public.router)
