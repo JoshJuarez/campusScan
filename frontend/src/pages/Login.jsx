@@ -1,12 +1,22 @@
-import { useState } from "react";
-import { createPartnershipLead, subscribePhone } from "../api";
+import { useEffect, useRef, useState } from "react";
+import { createPartnershipLead, getUniversities, subscribePhone } from "../api";
+import Features from "../components/Features";
+import Footer from "../components/Footer";
+import HowItWorks from "../components/HowItWorks";
 
 export default function Login() {
+  // University selector
+  const [universities, setUniversities] = useState([]);
+  const [query, setQuery] = useState("");
+  const [selectedUniversity, setSelectedUniversity] = useState(null);
+
+  // Subscribe form
   const [phoneNumber, setPhoneNumber] = useState("");
   const [subscriberMessage, setSubscriberMessage] = useState("");
   const [subscriberError, setSubscriberError] = useState("");
   const [subscriberLoading, setSubscriberLoading] = useState(false);
 
+  // Partnership form
   const [leadForm, setLeadForm] = useState({
     contact_name: "",
     email: "",
@@ -19,37 +29,64 @@ export default function Login() {
   const [leadError, setLeadError] = useState("");
   const [leadLoading, setLeadLoading] = useState(false);
 
-  const handleSubscriberSubmit = async (event) => {
-    event.preventDefault();
+  const partnershipRef = useRef(null);
+
+  useEffect(() => {
+    getUniversities()
+      .then((res) => setUniversities(res.data.universities))
+      .catch(() => setUniversities([]));
+  }, []);
+
+  const filtered = query.trim()
+    ? universities.filter((u) =>
+        u.toLowerCase().includes(query.trim().toLowerCase())
+      )
+    : universities;
+
+  const handleSelectUniversity = (university) => {
+    setSelectedUniversity(university);
+    setQuery(university);
+  };
+
+  const handleNotListed = () => {
+    partnershipRef.current?.scrollIntoView({ behavior: "smooth" });
+    setLeadForm((f) => ({ ...f, university: query.trim() }));
+  };
+
+  const handleSubscriberSubmit = async (e) => {
+    e.preventDefault();
     setSubscriberLoading(true);
     setSubscriberError("");
     setSubscriberMessage("");
-
     try {
-      const response = await subscribePhone({ phone_number: phoneNumber });
-      setSubscriberMessage(response.data.message);
+      const res = await subscribePhone({
+        phone_number: phoneNumber,
+        university: selectedUniversity,
+      });
+      setSubscriberMessage(res.data.message);
       setPhoneNumber("");
-    } catch (error) {
-      setSubscriberError(error.response?.data?.detail || "We could not save that number right now.");
+    } catch (err) {
+      setSubscriberError(
+        err.response?.data?.detail || "We could not save that number right now."
+      );
     } finally {
       setSubscriberLoading(false);
     }
   };
 
-  const handleLeadChange = (event) => {
-    const { name, value } = event.target;
-    setLeadForm((current) => ({ ...current, [name]: value }));
+  const handleLeadChange = (e) => {
+    const { name, value } = e.target;
+    setLeadForm((f) => ({ ...f, [name]: value }));
   };
 
-  const handleLeadSubmit = async (event) => {
-    event.preventDefault();
+  const handleLeadSubmit = async (e) => {
+    e.preventDefault();
     setLeadLoading(true);
     setLeadError("");
     setLeadMessage("");
-
     try {
-      const response = await createPartnershipLead(leadForm);
-      setLeadMessage(response.data.message);
+      const res = await createPartnershipLead(leadForm);
+      setLeadMessage(res.data.message);
       setLeadForm({
         contact_name: "",
         email: "",
@@ -58,23 +95,30 @@ export default function Login() {
         preferred_timing: "",
         message: "",
       });
-    } catch (error) {
-      setLeadError(error.response?.data?.detail || "We could not save your request right now.");
+    } catch (err) {
+      setLeadError(
+        err.response?.data?.detail || "We could not save your request right now."
+      );
     } finally {
       setLeadLoading(false);
     }
   };
 
+  const panelState = selectedUniversity ? "subscribe" : "picker";
+
   return (
-    <main className="landing-page">
+    <>
+      {/* ── Hero ─────────────────────────────────────────── */}
       <section className="hero">
         <div className="hero-copy">
           <p className="eyebrow">Text-first campus alerts</p>
-          <h1>CampusScan sends the best of campus life straight to your phone.</h1>
+          <h1>
+            CampusScan sends the best of campus life straight to your phone.
+          </h1>
           <p className="hero-text">
-            Built with Fordham University as the test case, CampusScan scans club and campus
-            announcement emails — collected by student ambassadors who are plugged into every
-            mailing list — and texts quick alerts about what is happening today, including free
+            CampusScan scans club and campus announcement emails — collected by
+            student ambassadors plugged into every mailing list — and texts
+            quick daily alerts about what is happening today, including free
             food and club events.
           </p>
           <div className="hero-highlights">
@@ -84,130 +128,194 @@ export default function Login() {
           </div>
         </div>
 
-        <form className="panel" onSubmit={handleSubscriberSubmit}>
-          <p className="panel-label">Get CampusScan texts</p>
-          <h2>Enter your phone number</h2>
-          <p className="panel-text">
-            We will use this number for campus event texts and daily highlights.
-          </p>
+        <div className="panel">
+          {panelState === "picker" && (
+            <>
+              <p className="panel-label">Find your campus</p>
+              <h2>Is CampusScan at your university?</h2>
+              <p className="panel-text">
+                Search for your school. If we are already there you can sign up
+                for text alerts right away.
+              </p>
 
-          <label htmlFor="phone_number">Phone number</label>
-          <input
-            id="phone_number"
-            name="phone_number"
-            type="tel"
-            placeholder="(555) 123-4567"
-            value={phoneNumber}
-            onChange={(event) => setPhoneNumber(event.target.value)}
-            required
-          />
+              <label htmlFor="university-search">Your university</label>
+              <div className="university-search-wrap">
+                <input
+                  id="university-search"
+                  type="text"
+                  placeholder="Search for your school..."
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setSelectedUniversity(null);
+                  }}
+                  autoComplete="off"
+                />
+                {query.trim() && !selectedUniversity && (
+                  <ul className="university-dropdown">
+                    {filtered.length > 0 ? (
+                      filtered.map((u) => (
+                        <li key={u} onClick={() => handleSelectUniversity(u)}>
+                          {u}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="university-dropdown-empty">
+                        No results for &ldquo;{query.trim()}&rdquo;
+                      </li>
+                    )}
+                  </ul>
+                )}
+              </div>
 
-          <button type="submit" disabled={subscriberLoading}>
-            {subscriberLoading ? "Saving..." : "Start text alerts"}
-          </button>
+              <button
+                type="button"
+                className="not-listed-link"
+                onClick={handleNotListed}
+              >
+                My school is not listed — bring CampusScan to my campus
+              </button>
+            </>
+          )}
 
-          {subscriberMessage && <p className="success-message">{subscriberMessage}</p>}
-          {subscriberError && <p className="error-message">{subscriberError}</p>}
-        </form>
-      </section>
+          {panelState === "subscribe" && (
+            <form onSubmit={handleSubscriberSubmit}>
+              <button
+                type="button"
+                className="back-button"
+                onClick={() => {
+                  setSelectedUniversity(null);
+                  setQuery("");
+                  setSubscriberMessage("");
+                  setSubscriberError("");
+                }}
+              >
+                ← Back
+              </button>
+              <p className="panel-label">Get CampusScan texts</p>
+              <h2>{selectedUniversity}</h2>
+              <p className="panel-text">
+                Enter your phone number and we will text you daily campus event
+                alerts and free food updates.
+              </p>
 
-      <section className="info-grid">
-        <article className="info-card">
-          <p className="eyebrow">How it works</p>
-          <h2>Ambassadors power the data.</h2>
-          <p>
-            Student ambassadors are plugged into every club and campus mailing list. They connect
-            their Gmail so CampusScan can scan their inbox, pull event announcements, and turn
-            them into alerts for the whole campus.
-          </p>
-        </article>
+              <label htmlFor="phone_number">Phone number</label>
+              <input
+                id="phone_number"
+                name="phone_number"
+                type="tel"
+                placeholder="(555) 123-4567"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                required
+              />
 
-        <article className="info-card">
-          <p className="eyebrow">What students get</p>
-          <h2>Short messages, not another dashboard.</h2>
-          <p>
-            Students do not need to dig through newsletters. Text JOIN or sign up below and get a
-            direct text about club meetings, campus events, and where the free food is.
-          </p>
-        </article>
-      </section>
+              <button type="submit" disabled={subscriberLoading}>
+                {subscriberLoading ? "Saving..." : "Start text alerts"}
+              </button>
 
-      <section className="partnership-section">
-        <div className="section-copy">
-          <p className="eyebrow">Bring it to your campus</p>
-          <h2>Want CampusScan at another university?</h2>
-          <p>
-            If you work at a university, student organization, or campus office and want to connect
-            your school, send your information here. We will follow up to schedule a meeting and
-            talk through onboarding your campus.
-          </p>
+              {subscriberMessage && (
+                <p className="success-message">{subscriberMessage}</p>
+              )}
+              {subscriberError && (
+                <p className="error-message">{subscriberError}</p>
+              )}
+            </form>
+          )}
         </div>
-
-        <form className="panel partnership-form" onSubmit={handleLeadSubmit}>
-          <label htmlFor="contact_name">Your name</label>
-          <input
-            id="contact_name"
-            name="contact_name"
-            value={leadForm.contact_name}
-            onChange={handleLeadChange}
-            required
-          />
-
-          <label htmlFor="email">Work or school email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={leadForm.email}
-            onChange={handleLeadChange}
-            required
-          />
-
-          <label htmlFor="university">University</label>
-          <input
-            id="university"
-            name="university"
-            value={leadForm.university}
-            onChange={handleLeadChange}
-            required
-          />
-
-          <label htmlFor="lead_phone_number">Phone number</label>
-          <input
-            id="lead_phone_number"
-            name="phone_number"
-            type="tel"
-            value={leadForm.phone_number}
-            onChange={handleLeadChange}
-          />
-
-          <label htmlFor="preferred_timing">Best time for a meeting</label>
-          <input
-            id="preferred_timing"
-            name="preferred_timing"
-            placeholder="Next week, afternoons, Zoom preferred"
-            value={leadForm.preferred_timing}
-            onChange={handleLeadChange}
-          />
-
-          <label htmlFor="message">What should we know?</label>
-          <textarea
-            id="message"
-            name="message"
-            rows="5"
-            placeholder="Tell us about your campus, your student audience, or what kinds of alerts you want to send."
-            value={leadForm.message}
-            onChange={handleLeadChange}
-          />
-
-          <button type="submit" disabled={leadLoading}>
-            {leadLoading ? "Sending..." : "Request a meeting"}
-          </button>
-
-          {leadMessage && <p className="success-message">{leadMessage}</p>}
-          {leadError && <p className="error-message">{leadError}</p>}
-        </form>
       </section>
-    </main>
+
+      {/* ── How It Works ─────────────────────────────────── */}
+      <HowItWorks />
+
+      {/* ── Features ─────────────────────────────────────── */}
+      <Features />
+
+      {/* ── Partnership / Universities ────────────────────── */}
+      <section id="universities" className="section section--light" ref={partnershipRef}>
+        <div className="section-inner partnership-layout">
+          <div className="section-copy">
+            <p className="eyebrow">Bring it to your campus</p>
+            <h2 className="section-heading">
+              Want CampusScan at your{" "}
+              <span className="section-heading--accent">university?</span>
+            </h2>
+            <p>
+              If you work at a university, student organization, or campus
+              office, send your information here. We will follow up to schedule
+              a meeting and talk through onboarding your campus.
+            </p>
+          </div>
+
+          <form className="panel partnership-form" onSubmit={handleLeadSubmit}>
+            <label htmlFor="contact_name">Your name</label>
+            <input
+              id="contact_name"
+              name="contact_name"
+              value={leadForm.contact_name}
+              onChange={handleLeadChange}
+              required
+            />
+
+            <label htmlFor="email">Work or school email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={leadForm.email}
+              onChange={handleLeadChange}
+              required
+            />
+
+            <label htmlFor="university">University</label>
+            <input
+              id="university"
+              name="university"
+              value={leadForm.university}
+              onChange={handleLeadChange}
+              required
+            />
+
+            <label htmlFor="lead_phone_number">Phone number</label>
+            <input
+              id="lead_phone_number"
+              name="phone_number"
+              type="tel"
+              value={leadForm.phone_number}
+              onChange={handleLeadChange}
+            />
+
+            <label htmlFor="preferred_timing">Best time for a meeting</label>
+            <input
+              id="preferred_timing"
+              name="preferred_timing"
+              placeholder="Next week, afternoons, Zoom preferred"
+              value={leadForm.preferred_timing}
+              onChange={handleLeadChange}
+            />
+
+            <label htmlFor="message">What should we know?</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="5"
+              placeholder="Tell us about your campus, your student audience, or what kinds of alerts you want to send."
+              value={leadForm.message}
+              onChange={handleLeadChange}
+            />
+
+            <button type="submit" disabled={leadLoading}>
+              {leadLoading ? "Sending..." : "Request a meeting"}
+            </button>
+
+            {leadMessage && <p className="success-message">{leadMessage}</p>}
+            {leadError && <p className="error-message">{leadError}</p>}
+          </form>
+        </div>
+      </section>
+
+      {/* ── Footer ───────────────────────────────────────── */}
+      <Footer />
+    </>
   );
 }

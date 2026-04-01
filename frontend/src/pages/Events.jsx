@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   deleteAdminEvent,
   getAdminAmbassadors,
@@ -18,6 +19,17 @@ export default function Events() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [error, setError] = useState("");
   const [stats, setStats] = useState(null);
+  const [connectedBanner, setConnectedBanner] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("connected") === "true") {
+      setConnectedBanner(true);
+      // Remove the param from the URL without triggering a navigation
+      setSearchParams({}, { replace: true });
+    }
+  }, []);
 
   const handleLogin = async () => {
     try {
@@ -34,7 +46,7 @@ export default function Events() {
       setAmbassadors(ambassadorRes.data.ambassadors);
       setLoggedIn(true);
       setError("");
-    } catch (err) {
+    } catch {
       setError("Wrong password");
     }
   };
@@ -59,10 +71,10 @@ export default function Events() {
       const res = await runAdminScan(password);
       alert(
         `Scanned ${res.data.ambassadors_scanned} ambassador inbox(es), ` +
-        `${res.data.scanned} emails total, found ${res.data.new_events} new events`
+        `${res.data.emails_scanned} emails total, found ${res.data.new_events} new events`
       );
       refreshDashboard();
-    } catch (err) {
+    } catch {
       alert("Scan failed");
     }
     setScanning(false);
@@ -70,17 +82,22 @@ export default function Events() {
 
   const handleDelete = async (eventId) => {
     await deleteAdminEvent(eventId, password);
-    setEvents(events.filter(e => e.id !== eventId));
+    setEvents(events.filter((e) => e.id !== eventId));
   };
 
   const handleTestDigest = async () => {
-    await sendTestDigest();
+    await sendTestDigest(password);
     alert("Digest sent to all subscribers!");
   };
 
   if (!loggedIn) {
     return (
       <div className="admin-shell">
+        {connectedBanner && (
+          <p className="success-message">
+            Ambassador connected successfully. Log in to see them in the dashboard.
+          </p>
+        )}
         <h1>CampusScan Admin</h1>
         <input
           type="password"
@@ -99,6 +116,10 @@ export default function Events() {
     <div className="admin-shell">
       <h1>CampusScan Admin</h1>
 
+      {connectedBanner && (
+        <p className="success-message">Ambassador connected successfully.</p>
+      )}
+
       {stats && (
         <div className="admin-stats">
           <p>Active ambassadors: {ambassadors.filter((a) => a.is_active).length}</p>
@@ -115,9 +136,7 @@ export default function Events() {
         <a href="http://localhost:8000/auth/google" className="button-link">
           Add Ambassador
         </a>
-        <button onClick={handleTestDigest}>
-          Send Test Digest
-        </button>
+        <button onClick={handleTestDigest}>Send Test Digest</button>
       </div>
 
       <h2>Ambassadors ({ambassadors.length})</h2>
@@ -128,6 +147,7 @@ export default function Events() {
         <div key={a.id} className="admin-card">
           <h3>{a.name}</h3>
           <p>{a.email}</p>
+          {a.university && <p>{a.university}</p>}
           <p>Joined: {new Date(a.joined_at).toLocaleDateString()}</p>
         </div>
       ))}
@@ -137,9 +157,11 @@ export default function Events() {
       {events.map((event) => (
         <div key={event.id} className="admin-card">
           <h3>{event.title}</h3>
-          {event.has_food && <span>🍕 Free Food — {event.food_keywords?.join(", ")}</span>}
-          <p>{event.event_date} {event.event_time && `at ${event.event_time}`}</p>
-          <p>📍 {event.location}</p>
+          {event.has_food && <span>Free Food — {event.food_keywords?.join(", ")}</span>}
+          <p>
+            {event.event_date} {event.event_time && `at ${event.event_time}`}
+          </p>
+          <p>{event.location}</p>
           <p>Club: {event.club}</p>
           <p>Confidence: {event.confidence}</p>
           <button onClick={() => handleDelete(event.id)} className="danger-button">
