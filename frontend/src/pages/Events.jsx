@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   deleteAdminEvent,
+  getAdminAmbassadors,
   getAdminEvents,
   getAdminPartnerships,
   getAdminSubscribers,
@@ -11,6 +12,7 @@ import {
 export default function Events() {
   const [events, setEvents] = useState([]);
   const [partnerships, setPartnerships] = useState([]);
+  const [ambassadors, setAmbassadors] = useState([]);
   const [scanning, setScanning] = useState(false);
   const [password, setPassword] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
@@ -19,15 +21,17 @@ export default function Events() {
 
   const handleLogin = async () => {
     try {
-      const [subscriberRes, eventsRes, partnershipsRes] = await Promise.all([
+      const [subscriberRes, eventsRes, partnershipsRes, ambassadorRes] = await Promise.all([
         getAdminSubscribers(password),
         getAdminEvents(password),
         getAdminPartnerships(password),
+        getAdminAmbassadors(password),
       ]);
 
       setStats(subscriberRes.data);
       setEvents(eventsRes.data.events);
       setPartnerships(partnershipsRes.data.leads);
+      setAmbassadors(ambassadorRes.data.ambassadors);
       setLoggedIn(true);
       setError("");
     } catch (err) {
@@ -36,22 +40,27 @@ export default function Events() {
   };
 
   const refreshDashboard = async () => {
-    const [subscriberRes, eventsRes, partnershipsRes] = await Promise.all([
+    const [subscriberRes, eventsRes, partnershipsRes, ambassadorRes] = await Promise.all([
       getAdminSubscribers(password),
       getAdminEvents(password),
       getAdminPartnerships(password),
+      getAdminAmbassadors(password),
     ]);
 
     setStats(subscriberRes.data);
     setEvents(eventsRes.data.events);
     setPartnerships(partnershipsRes.data.leads);
+    setAmbassadors(ambassadorRes.data.ambassadors);
   };
 
   const handleScan = async () => {
     setScanning(true);
     try {
       const res = await runAdminScan(password);
-      alert(`Scanned ${res.data.scanned} emails, found ${res.data.new_events} new events`);
+      alert(
+        `Scanned ${res.data.ambassadors_scanned} ambassador inbox(es), ` +
+        `${res.data.scanned} emails total, found ${res.data.new_events} new events`
+      );
       refreshDashboard();
     } catch (err) {
       alert("Scan failed");
@@ -92,6 +101,7 @@ export default function Events() {
 
       {stats && (
         <div className="admin-stats">
+          <p>Active ambassadors: {ambassadors.filter((a) => a.is_active).length}</p>
           <p>Total subscribers: {stats.total}</p>
           <p>Active subscribers: {stats.active}</p>
           <p>Partnership requests: {partnerships.length}</p>
@@ -100,12 +110,27 @@ export default function Events() {
 
       <div className="admin-actions">
         <button onClick={handleScan} disabled={scanning}>
-          {scanning ? "Scanning..." : "Scan Inbox"}
+          {scanning ? "Scanning..." : `Scan Ambassador Inboxes (${ambassadors.length})`}
         </button>
+        <a href="http://localhost:8000/auth/google" className="button-link">
+          Add Ambassador
+        </a>
         <button onClick={handleTestDigest}>
           Send Test Digest
         </button>
       </div>
+
+      <h2>Ambassadors ({ambassadors.length})</h2>
+      {ambassadors.length === 0 && (
+        <p>No ambassadors yet. Click "Add Ambassador" to connect a Gmail inbox.</p>
+      )}
+      {ambassadors.map((a) => (
+        <div key={a.id} className="admin-card">
+          <h3>{a.name}</h3>
+          <p>{a.email}</p>
+          <p>Joined: {new Date(a.joined_at).toLocaleDateString()}</p>
+        </div>
+      ))}
 
       <h2>Detected Events ({events.length})</h2>
       {events.length === 0 && <p>No events yet. Click Scan Inbox to start.</p>}

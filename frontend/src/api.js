@@ -6,7 +6,9 @@ const API = axios.create({
 
 export const subscribePhone = (payload) => API.post("/subscribe", payload);
 export const createPartnershipLead = (payload) => API.post("/partnerships", payload);
+
 export const getAdminSubscribers = (password) => API.get(`/admin/subscribers?password=${password}`);
+export const getAdminAmbassadors = (password) => API.get(`/admin/ambassadors?password=${password}`);
 export const getAdminEvents = (password) => API.get(`/admin/events?password=${password}`);
 export const getAdminPartnerships = (password) => API.get(`/admin/partnerships?password=${password}`);
 export const runAdminScan = (password) => API.post(`/admin/scan?password=${password}`);

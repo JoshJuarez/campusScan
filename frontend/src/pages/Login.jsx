@@ -72,12 +72,13 @@ export default function Login() {
           <p className="eyebrow">Text-first campus alerts</p>
           <h1>CampusScan sends the best of campus life straight to your phone.</h1>
           <p className="hero-text">
-            Built with Fordham University as the test case, CampusScan scans campus email updates,
-            finds the events students actually care about, and texts quick alerts about what is
-            happening today, including free food and club events.
+            Built with Fordham University as the test case, CampusScan scans club and campus
+            announcement emails — collected by student ambassadors who are plugged into every
+            mailing list — and texts quick alerts about what is happening today, including free
+            food and club events.
           </p>
           <div className="hero-highlights">
-            <span>Fordham email scanning</span>
+            <span>Club mailing list coverage</span>
             <span>Daily event notifications</span>
             <span>Free food alerts</span>
           </div>
@@ -113,10 +114,11 @@ export default function Login() {
       <section className="info-grid">
         <article className="info-card">
           <p className="eyebrow">How it works</p>
-          <h2>Fordham is the first campus model.</h2>
+          <h2>Ambassadors power the data.</h2>
           <p>
-            CampusScan uses a Fordham inbox as the source of truth, pulls event announcements,
-            highlights the ones worth leaving your dorm for, and turns them into text-ready alerts.
+            Student ambassadors are plugged into every club and campus mailing list. They connect
+            their Gmail so CampusScan can scan their inbox, pull event announcements, and turn
+            them into alerts for the whole campus.
           </p>
         </article>
 
@@ -124,8 +126,8 @@ export default function Login() {
           <p className="eyebrow">What students get</p>
           <h2>Short messages, not another dashboard.</h2>
           <p>
-            Students do not need to dig through newsletters. They can get a direct text about club
-            meetings, campus events, and where the free food is.
+            Students do not need to dig through newsletters. Text JOIN or sign up below and get a
+            direct text about club meetings, campus events, and where the free food is.
           </p>
         </article>
       </section>
