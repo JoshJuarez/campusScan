@@ -11,6 +11,20 @@ from services.twilio_service import send_welcome_text
 router = APIRouter(tags=["public"])
 
 
+@router.get("/universities")
+def get_universities(db: Session = Depends(get_db)):
+    """Return the list of universities that currently have active ambassadors."""
+    from models import Ambassador
+    results = (
+        db.query(Ambassador.university)
+        .filter(Ambassador.is_active == True, Ambassador.university != None)
+        .distinct()
+        .all()
+    )
+    universities = sorted([r.university for r in results if r.university])
+    return {"universities": universities}
+
+
 def normalize_phone_number(phone_number: str) -> str:
     digits = "".join(ch for ch in phone_number if ch.isdigit())
 
@@ -50,7 +64,10 @@ def create_subscription(payload: SubscriberCreate, db: Session = Depends(get_db)
             "message": "Welcome back. CampusScan alerts have been turned back on for this number.",
         }
 
-    subscriber = Subscriber(phone_number=normalized_phone)
+    subscriber = Subscriber(
+        phone_number=normalized_phone,
+        university=payload.university.strip() if payload.university else None,
+    )
     db.add(subscriber)
     db.commit()
 

@@ -4,6 +4,12 @@ from email.utils import parsedate_to_datetime
 import base64
 import os
 
+GMAIL_SCOPES = [
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "email",
+    "profile",
+]
+
 def get_gmail_service(access_token: str, refresh_token: str):
     creds = Credentials(
         token=access_token,
@@ -11,6 +17,7 @@ def get_gmail_service(access_token: str, refresh_token: str):
         client_id=os.getenv("GOOGLE_CLIENT_ID"),
         client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
         token_uri="https://oauth2.googleapis.com/token",
+        scopes=GMAIL_SCOPES,
     )
     return build("gmail", "v1", credentials=creds)
 

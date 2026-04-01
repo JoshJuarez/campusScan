@@ -45,9 +45,14 @@ def extract_datetime(text: str):
     return None, None
 
 def extract_location(text: str):
+    # Look for common location phrases: "at/in <Place>", room numbers, building names
     patterns = [
-        r'(?:in|at)\s+([A-Z][a-z]+(?:\s+[A-Z]?[a-z]+)*(?:\s+\d+)?)',
-        r'(Lowenstein|Keating|Walsh|Dealy|McNally|Rose\s*Hill)[^\.,\n]*',
+        # "at the Student Center", "in Room 204", "at 123 Main St"
+        r'(?:in|at)\s+(?:the\s+)?([A-Z][a-zA-Z]*(?:\s+[A-Z]?[a-zA-Z]+){0,4}(?:\s+\d+)?)',
+        # "Room 204", "Rm. 12", "Suite 300"
+        r'(?:Room|Rm\.?|Suite|Hall|Building|Bldg\.?)\s+[A-Z0-9]\w*',
+        # Standalone capitalized multi-word phrases that look like building names
+        r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}(?:\s+(?:Hall|Center|Building|Room|Auditorium|Theater|Theatre|Gym|Library|Cafeteria|Lounge|Plaza|Quad))?)\b',
     ]
     for pat in patterns:
         match = re.search(pat, text)

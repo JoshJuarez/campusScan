@@ -28,6 +28,7 @@ class Subscriber(Base):
 
     id           = Column(Integer, primary_key=True, index=True)
     phone_number = Column(String(20), unique=True, nullable=False)
+    university   = Column(String(255))
     is_active    = Column(Boolean, default=True)
     joined_at    = Column(DateTime, server_default=func.now())
 

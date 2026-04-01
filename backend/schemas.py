@@ -14,8 +14,6 @@ class EventOut(BaseModel):
     has_food: bool
     food_keywords: Optional[List[str]]
     confidence: str
-    status: str
-    google_cal_event_id: Optional[str]
 
     class Config:
         from_attributes = True
@@ -31,6 +29,7 @@ class SuccessResponse(BaseModel):
 
 class SubscriberCreate(BaseModel):
     phone_number: str
+    university: Optional[str] = None
 
 
 class PartnershipLeadCreate(BaseModel):
