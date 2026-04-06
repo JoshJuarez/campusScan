@@ -25,6 +25,7 @@ def get_subscribers(db: Session = Depends(get_db), authorization: str = Header(.
             {
                 "id": s.id,
                 "phone_number": s.phone_number,
+                "university": s.university,
                 "is_active": s.is_active,
                 "joined_at": s.joined_at,
             }
@@ -73,40 +74,6 @@ def get_partnerships(db: Session = Depends(get_db), authorization: str = Header(
             for lead in leads
         ],
     }
-
-
-@router.get("/events")
-def get_events(db: Session = Depends(get_db), authorization: str = Header(...)):
-    check_admin(authorization)
-    events = db.query(Event).order_by(Event.event_date).all()
-    return {
-        "total": len(events),
-        "events": [
-            {
-                "id": e.id,
-                "title": e.title,
-                "club": e.club,
-                "event_date": e.event_date,
-                "event_time": e.event_time,
-                "location": e.location,
-                "has_food": e.has_food,
-                "food_keywords": e.food_keywords,
-                "confidence": e.confidence,
-            }
-            for e in events
-        ],
-    }
-
-
-@router.delete("/events/{event_id}")
-def delete_event(event_id: int, db: Session = Depends(get_db), authorization: str = Header(...)):
-    check_admin(authorization)
-    event = db.query(Event).filter_by(id=event_id).first()
-    if not event:
-        raise HTTPException(status_code=404, detail="Event not found")
-    db.delete(event)
-    db.commit()
-    return {"success": True}
 
 
 @router.post("/scan")

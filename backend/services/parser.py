@@ -1,31 +1,43 @@
 import re
+from datetime import datetime, timezone
 from dateutil import parser as dateparser
 
 FOOD_KEYWORDS = [
     "pizza", "free food", "food", "refreshments",
-    "dinner", "lunch", "snacks", "drinks", "catering", "meal"
+    "dinner", "lunch", "snacks", "drinks", "catering", "meal", "boba", "donuts"
 ]
 
-def extract_event(subject: str, body: str, sender: str) -> dict:
+
+def extract_event(subject: str, body: str, sender: str, university: str = None) -> dict:
     text = f"{subject} {body}"
     lower = text.lower()
 
     found_food = [kw for kw in FOOD_KEYWORDS if kw in lower]
-    event_date, event_time = extract_datetime(text)
+    start_iso, end_iso = extract_datetime(text)
     location = extract_location(text)
-    club = extract_club(sender)
-    confidence = "high" if (event_date and event_time) else "medium" if event_date else "low"
+    club_name = extract_club(sender)
+
+    # Build a one-sentence summary from the subject
+    summary = subject.strip()[:120] if subject else ""
+
+    confidence = "high" if start_iso else "medium" if location else "low"
 
     return {
         "title": subject,
-        "club": club,
-        "event_date": event_date,
-        "event_time": event_time,
+        "summary": summary,
+        "club_name": club_name,
+        "club_names": [club_name] if club_name else [],
         "location": location,
+        "start_iso": start_iso,
+        "end_iso": end_iso,
         "has_food": bool(found_food),
         "food_keywords": found_food,
         "confidence": confidence,
+        "university": university,
+        "status": "approved",
+        "source": "scanned",
     }
+
 
 def extract_datetime(text: str):
     chunks = re.findall(
@@ -38,20 +50,23 @@ def extract_datetime(text: str):
         try:
             dt = dateparser.parse(chunk, fuzzy=True)
             if dt and dt.year >= 2024:
-                t = dt.time() if dt.hour != 0 or dt.minute != 0 else None
-                return dt.date(), t
+                # Ensure timezone-aware
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                start = dt.isoformat()
+                # Default 1-hour event
+                end_dt = dt.replace(hour=dt.hour + 1) if dt.hour < 23 else dt
+                end = end_dt.isoformat()
+                return start, end
         except Exception:
             continue
     return None, None
 
+
 def extract_location(text: str):
-    # Look for common location phrases: "at/in <Place>", room numbers, building names
     patterns = [
-        # "at the Student Center", "in Room 204", "at 123 Main St"
         r'(?:in|at)\s+(?:the\s+)?([A-Z][a-zA-Z]*(?:\s+[A-Z]?[a-zA-Z]+){0,4}(?:\s+\d+)?)',
-        # "Room 204", "Rm. 12", "Suite 300"
         r'(?:Room|Rm\.?|Suite|Hall|Building|Bldg\.?)\s+[A-Z0-9]\w*',
-        # Standalone capitalized multi-word phrases that look like building names
         r'\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,3}(?:\s+(?:Hall|Center|Building|Room|Auditorium|Theater|Theatre|Gym|Library|Cafeteria|Lounge|Plaza|Quad))?)\b',
     ]
     for pat in patterns:
@@ -59,6 +74,7 @@ def extract_location(text: str):
         if match:
             return match.group(0).strip()
     return None
+
 
 def extract_club(sender: str):
     match = re.search(r'[\.<]?([a-z]+)@', sender.lower())

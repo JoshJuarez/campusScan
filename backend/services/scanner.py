@@ -45,7 +45,12 @@ def scan_all_ambassadors(db=None) -> dict:
                 db.add(email_row)
                 db.flush()
 
-                parsed = extract_event(raw["subject"], raw["raw_body"], raw["sender"])
+                parsed = extract_event(
+                    raw["subject"],
+                    raw["raw_body"],
+                    raw["sender"],
+                    university=ambassador.university,
+                )
                 if parsed["confidence"] != "low" or parsed["has_food"]:
                     event_row = Event(scanned_email_id=email_row.id, **parsed)
                     db.add(event_row)

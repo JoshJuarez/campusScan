@@ -1,22 +1,24 @@
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base, SessionLocal
-from routers import admin, webhook, public, auth
+from routers import admin, webhook, public, auth, events
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from models import Subscriber, Event
 from services.twilio_service import send_event_digest
 from services.scanner import scan_all_ambassadors
-from datetime import date
+from datetime import datetime, timezone
 import os
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="CampusScan API")
 
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[FRONTEND_URL, "http://localhost:3000", "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,17 +28,40 @@ app.include_router(auth.router)
 app.include_router(admin.router)
 app.include_router(webhook.router)
 app.include_router(public.router)
+app.include_router(events.router)
 
 
 def send_daily_digests():
     db = SessionLocal()
     try:
         subscribers = db.query(Subscriber).filter_by(is_active=True).all()
-        today_events = db.query(Event).filter(Event.event_date == date.today()).all()
+        now = datetime.now(timezone.utc)
+
+        # Find approved events happening today
+        today_events = []
+        for event in db.query(Event).filter(Event.status == "approved").all():
+            if not event.start_iso:
+                continue
+            try:
+                dt = datetime.fromisoformat(event.start_iso)
+                if dt.tzinfo is None:
+                    dt = dt.replace(tzinfo=timezone.utc)
+                if dt.date() == now.date():
+                    today_events.append(event)
+            except Exception:
+                continue
+
         if not today_events:
             return
+
         for subscriber in subscribers:
-            send_event_digest(subscriber.phone_number, today_events)
+            # Only send events for the subscriber's university (or all if no university set)
+            if subscriber.university:
+                filtered = [e for e in today_events if not e.university or e.university == subscriber.university]
+            else:
+                filtered = today_events
+            if filtered:
+                send_event_digest(subscriber.phone_number, filtered)
     finally:
         db.close()
 
@@ -48,7 +73,6 @@ def scheduled_scan_and_digest():
 
 
 scheduler = BackgroundScheduler()
-# Scan inboxes and send digest every morning at 7:45 AM
 scheduler.add_job(
     scheduled_scan_and_digest,
     CronTrigger(hour=7, minute=45),

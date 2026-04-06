@@ -1,12 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, Boolean, ARRAY, Date, Time, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Boolean, ARRAY, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
 
 
-# An ambassador is a student who is on club/campus mailing lists and connects
-# their Gmail so CampusScan can scan it for events. Multiple ambassadors can
-# exist per school. Their inbox is the sole source of event data.
 class Ambassador(Base):
     __tablename__ = "ambassadors"
 
@@ -50,19 +47,44 @@ class ScannedEmail(Base):
 
 
 class Event(Base):
+    """
+    Covers both auto-scanned events (source='scanned', status='approved' by default)
+    and manually submitted events (source='submitted', status='pending' until reviewed).
+    """
     __tablename__ = "events"
 
     id               = Column(Integer, primary_key=True, index=True)
-    scanned_email_id = Column(Integer, ForeignKey("scanned_emails.id"))
+    scanned_email_id = Column(Integer, ForeignKey("scanned_emails.id"), nullable=True)
+
+    # Core content
     title            = Column(Text, nullable=False)
-    club             = Column(String(255))
-    event_date       = Column(Date)
-    event_time       = Column(Time)
+    summary          = Column(Text)
+    description      = Column(Text)
+    club_name        = Column(String(255))          # primary club
+    club_names       = Column(ARRAY(String))        # all clubs (collab events)
     location         = Column(Text)
+    start_iso        = Column(String(50))           # ISO-8601 datetime string
+    end_iso          = Column(String(50))
+    tags             = Column(ARRAY(String))
+    image_url        = Column(Text)
+    event_url        = Column(Text)
+    directions_video_url = Column(Text)
+    university       = Column(String(255))
+
+    # Scanning metadata
     has_food         = Column(Boolean, default=False)
     food_keywords    = Column(ARRAY(String))
     confidence       = Column(String(20))
+
+    # Workflow
+    status           = Column(String(20), default="approved")   # approved | pending | rejected
+    source           = Column(String(20), default="scanned")    # scanned | submitted
+    posted_by        = Column(String(255))
+    reviewed_by      = Column(String(255))
+    reviewed_at      = Column(DateTime)
+
     created_at       = Column(DateTime, server_default=func.now())
+    updated_at       = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     source_email = relationship("ScannedEmail", back_populates="event")
 
