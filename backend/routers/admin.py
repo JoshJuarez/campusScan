@@ -79,5 +79,8 @@ def get_partnerships(db: Session = Depends(get_db), authorization: str = Header(
 @router.post("/scan")
 def trigger_scan(db: Session = Depends(get_db), authorization: str = Header(...)):
     check_admin(authorization)
-    result = scan_all_ambassadors(db)
-    return result
+    try:
+        result = scan_all_ambassadors(db)
+        return result
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=f"Scan failed: {exc}") from exc

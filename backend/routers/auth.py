@@ -99,7 +99,7 @@ def google_callback(code: str, state: str = "", db: Session = Depends(get_db)):
 
     db.commit()
 
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
     return RedirectResponse(url=f"{frontend_url}/admin?connected=true")
 
 

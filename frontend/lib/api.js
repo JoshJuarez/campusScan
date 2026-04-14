@@ -22,8 +22,18 @@ export async function apiFetch(path, options = {}) {
       ...(options.headers || {}),
     },
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.detail || data.error || "API error");
+  const raw = await res.text();
+  let data = {};
+
+  if (raw) {
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = { error: raw };
+    }
+  }
+
+  if (!res.ok) throw new Error(data.detail || data.error || `API error (${res.status})`);
   return data;
 }
 

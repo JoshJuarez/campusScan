@@ -336,7 +336,9 @@ select {
 .stat-tile strong { display: block; font-size: 1.4rem; font-weight: 800; margin-bottom: 4px; }
 
 .button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: #fff;
   color: var(--accent);
   border: 1.5px solid rgba(127,29,29,0.2);

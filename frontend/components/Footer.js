@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   function scrollTo(id) {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -18,6 +20,13 @@ export default function Footer() {
                 <li><button onClick={() => scrollTo("how-it-works")}>How It Works</button></li>
                 <li><button onClick={() => scrollTo("features")}>Features</button></li>
                 <li><button onClick={() => scrollTo("universities")}>Bring to My Campus</button></li>
+              </ul>
+            </div>
+            <div className="footer-col">
+              <p className="footer-col-label">Legal</p>
+              <ul>
+                <li><Link href="/privacy">Privacy Policy</Link></li>
+                <li><Link href="/terms">Terms &amp; Conditions</Link></li>
               </ul>
             </div>
           </div>

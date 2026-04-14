@@ -81,6 +81,27 @@ export default async function EventDetailPage({ params }) {
               </p>
             )}
             {event.university && <p><strong>Campus:</strong> {event.university}</p>}
+            {event.has_food && (
+              <div style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                background: "rgba(216,164,58,0.15)",
+                border: "1px solid rgba(216,164,58,0.4)",
+                borderRadius: 10,
+                padding: "8px 14px",
+                margin: "10px 0",
+                fontWeight: 700,
+                fontSize: "0.95rem",
+              }}>
+                🍕 Free food
+                {event.food_keywords?.length > 0 && (
+                  <span style={{ fontWeight: 400, color: "var(--muted)" }}>
+                    — {event.food_keywords.join(", ")}
+                  </span>
+                )}
+              </div>
+            )}
             <CalendarButton event={event} />
             {event.event_url && (
               <p style={{ marginTop: 10 }}>

@@ -11,12 +11,12 @@ function AdminDashboardInner() {
   const router = useRouter();
 
   const [stats, setStats] = useState({ subscribers: null, ambassadors: null, partnerships: null });
-  const [scanResult, setScanResult] = useState(null);
   const [scanLoading, setScanLoading] = useState(false);
   const [digestLoading, setDigestLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [connectedBanner, setConnectedBanner] = useState(false);
+  const [ambassadorUniversity, setAmbassadorUniversity] = useState("");
 
   useEffect(() => {
     if (searchParams.get("connected") === "true") {
@@ -44,7 +44,6 @@ function AdminDashboardInner() {
       const res = await fetch("/api/admin?action=scan", { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Scan failed.");
-      setScanResult(data);
       setMessage(`Scan complete: ${data.emails_scanned} emails, ${data.new_events} new events.`);
     } catch (err) {
       setError(err.message);
@@ -140,13 +139,21 @@ function AdminDashboardInner() {
             <button type="button" onClick={handleDigest} disabled={digestLoading}>
               {digestLoading ? "Sending..." : "Send Digest Now"}
             </button>
-            <a
-              href={`${API_URL}/auth/google?university=`}
-              className="button button--small"
-              style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}
-            >
-              Connect Ambassador Gmail
-            </a>
+            <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+              <input
+                placeholder="University name"
+                value={ambassadorUniversity}
+                onChange={(e) => setAmbassadorUniversity(e.target.value)}
+                style={{ width: 200 }}
+              />
+              <a
+                href={`${API_URL}/auth/google?university=${encodeURIComponent(ambassadorUniversity)}`}
+                className="button button--small"
+                style={{ display: "inline-flex", alignItems: "center", textDecoration: "none" }}
+              >
+                Connect Ambassador Gmail
+              </a>
+            </div>
             <Link href="/admin/review" className="button button--small">Review Queue</Link>
           </div>
           {error && <p className="error-message" style={{ marginTop: 10 }}>{error}</p>}

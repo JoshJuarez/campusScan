@@ -43,7 +43,7 @@ class ScannedEmail(Base):
     scanned_at     = Column(DateTime, server_default=func.now())
 
     ambassador = relationship("Ambassador", back_populates="scanned_emails")
-    event      = relationship("Event", back_populates="source_email", uselist=False)
+    events     = relationship("Event", back_populates="source_email")
 
 
 class Event(Base):
@@ -86,7 +86,7 @@ class Event(Base):
     created_at       = Column(DateTime, server_default=func.now())
     updated_at       = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-    source_email = relationship("ScannedEmail", back_populates="event")
+    source_email = relationship("ScannedEmail", back_populates="events")
 
 
 class PartnershipLead(Base):

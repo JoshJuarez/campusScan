@@ -18,8 +18,8 @@ export default function SignInPage() {
         <p className="eyebrow">Sign in</p>
         <h1 style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>Welcome to CampusScan</h1>
         <p className="panel-text">
-          Sign in with your <strong>.edu</strong> Google account to submit events,
-          add events to your calendar, and join the club admin community.
+          Sign in with your <strong>.edu</strong> Google account to submit events
+          and join the club admin community.
         </p>
         <button
           type="button"
