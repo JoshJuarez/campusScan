@@ -1,16 +1,33 @@
-# React + Vite
+# CampusScan Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the Next.js frontend for CampusScan.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+npm run dev
+```
 
-## React Compiler
+The app expects the FastAPI backend to run on `http://localhost:8000` by default.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Required env vars
 
-## Expanding the ESLint configuration
+- `NEXTAUTH_URL`
+- `NEXTAUTH_SECRET`
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `API_URL`
+- `NEXT_PUBLIC_API_URL`
+- `ADMIN_PASSWORD`
+- `ADMIN_EMAILS`
+- `CLUB_ADMIN_EMAILS`
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Deployment
+
+Deploy this folder to Vercel with:
+
+- Root Directory: `frontend`
+- Framework Preset: `Next.js`
+
+See [DEPLOYMENT.md](/Users/joshuajuarez/Desktop/campusscan/DEPLOYMENT.md:1) for the full stack setup.
