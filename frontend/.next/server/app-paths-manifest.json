@@ -1,10 +1,4 @@
 {
   "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/api/admin/route": "app/api/admin/route.js",
-  "/api/events/route": "app/api/events/route.js",
-  "/api/events/[id]/route": "app/api/events/[id]/route.js",
-  "/page": "app/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/admin/review/page": "app/admin/review/page.js",
-  "/events/page": "app/events/page.js"
+  "/page": "app/page.js"
 }
