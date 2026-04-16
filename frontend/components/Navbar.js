@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function Navbar() {
   const [hidden, setHidden] = useState(false);
@@ -56,8 +56,10 @@ export default function Navbar() {
           >
             Get Alerts
           </button>
-          {session && (
+          {session ? (
             <button onClick={() => signOut()}>Sign Out</button>
+          ) : (
+            <button onClick={() => signIn("google")}>Sign In</button>
           )}
         </div>
 
@@ -89,8 +91,10 @@ export default function Navbar() {
           >
             Get Alerts
           </button>
-          {session && (
+          {session ? (
             <button onClick={() => signOut()}>Sign Out</button>
+          ) : (
+            <button onClick={() => signIn("google")}>Sign In</button>
           )}
         </div>
       )}

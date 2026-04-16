@@ -1,6 +1,7 @@
 import "./globals.css";
 import Providers from "./providers";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 export const metadata = {
   title: "CampusScan",
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
         <Providers>
           <Navbar />
           <div className="page-main">{children}</div>
+          <Footer />
         </Providers>
       </body>
     </html>

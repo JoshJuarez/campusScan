@@ -1,10 +1,6 @@
 import Link from "next/link";
 
 export default function Footer() {
-  function scrollTo(id) {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  }
-
   return (
     <footer className="footer">
       <div className="footer-inner">
@@ -17,9 +13,9 @@ export default function Footer() {
             <div className="footer-col">
               <p className="footer-col-label">Product</p>
               <ul>
-                <li><button onClick={() => scrollTo("how-it-works")}>How It Works</button></li>
-                <li><button onClick={() => scrollTo("features")}>Features</button></li>
-                <li><button onClick={() => scrollTo("universities")}>Bring to My Campus</button></li>
+                <li><Link href="/#how-it-works">How It Works</Link></li>
+                <li><Link href="/#features">Features</Link></li>
+                <li><Link href="/#universities">Bring to My Campus</Link></li>
               </ul>
             </div>
             <div className="footer-col">
